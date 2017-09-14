@@ -50,6 +50,7 @@ var app = {
       contentType: 'application/json',
       success: function (data) {
         console.log('data', data);
+        data = JSON.parse(data);
         if (data.results.length === 0) {
           return;
         }

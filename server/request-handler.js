@@ -18,18 +18,8 @@ var defaultCorsHeaders = {
   'access-control-max-age': 10 // Seconds.
 };
 var messages = [];
-// var actions = {
-//   'GET': function(req, res) {
-//     statusCode = 200;
-//   },
-//   'POST': function (req, res) {
-//     statusCode = 201;
-//   },
-//   'OPTIONS': function (req, res) {
-//     statusCode = 200;
-//     headers = defaultCorsHeaders;
-//   }
-// };
+
+
 var requestHandler = function(request, response) {
   // Request and Response come from node's http module.
   //
@@ -52,7 +42,7 @@ var requestHandler = function(request, response) {
   
 
   // See the note below about CORS headers.
-  var headers = {};
+  var headers = defaultCorsHeaders;
 
   // Tell the client we are sending them plain text.
   //
@@ -64,22 +54,24 @@ var requestHandler = function(request, response) {
   if (request.method === 'GET') {
     statusCode = 200;
   } else if (request.method === 'POST') {
+    console.log(request.data);
     statusCode = 201;
-  } else if (request.method === 'OPTIONS') {
-    headers = defaultCorsHeaders;
-    statusCode = 200;
   } else { 
     statusCode = 404;
   }
   
+  if (request.method === 'OPTIONS') {
+    statusCode = 200;
+  }
+  
 
-  if (request.url !== '/classes/messages') {
+  if (!request.url.includes('/classes/messages')) {
     statusCode = 404;
   }
   // .writeHead() writes to the request line and headers of the response,
   // which includes the status and all headers.
+  
   response.writeHead(statusCode, headers);
-  console.log(headers);
   // Make sure to always call response.end() - Node may not send
   // anything back to the client until you do. The string you pass to
   // response.end() will be the body of the response - i.e. what shows
@@ -88,7 +80,7 @@ var requestHandler = function(request, response) {
   // Calling .end "flushes" the response's internal buffer, forcing
   // node to actually send all the data over to the client.
   response.end(JSON.stringify({results: [{
-    username: 'Jono', message: 'Do my bidding!', roomname: 'lobby'
+    username: 'Jono', text: 'Do my bidding!', roomname: 'lobby'
   }]}));
 };
 
