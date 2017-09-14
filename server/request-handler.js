@@ -53,8 +53,18 @@ var requestHandler = function(request, response) {
   
   if (request.method === 'GET') {
     statusCode = 200;
+    response.writeHead(statusCode, headers);
+    response.end(JSON.stringify({results: messages}));
   } else if (request.method === 'POST') {
-    console.log(request.data);
+    request.setEncoding('utf8');
+    request.on('data', function(data) {
+      var msg = JSON.parse(data);
+      msg.createdAt = new Date();
+      messages.unshift(msg);
+      console.log(data);
+      response.writeHead(statusCode, headers);
+      response.end();
+    });
     statusCode = 201;
   } else { 
     statusCode = 404;
@@ -62,6 +72,8 @@ var requestHandler = function(request, response) {
   
   if (request.method === 'OPTIONS') {
     statusCode = 200;
+    response.writeHead(statusCode, headers);
+    response.end();
   }
   
 
@@ -71,7 +83,7 @@ var requestHandler = function(request, response) {
   // .writeHead() writes to the request line and headers of the response,
   // which includes the status and all headers.
   
-  response.writeHead(statusCode, headers);
+  // response.writeHead(statusCode, headers);
   // Make sure to always call response.end() - Node may not send
   // anything back to the client until you do. The string you pass to
   // response.end() will be the body of the response - i.e. what shows
@@ -79,12 +91,15 @@ var requestHandler = function(request, response) {
   //
   // Calling .end "flushes" the response's internal buffer, forcing
   // node to actually send all the data over to the client.
-  response.end(JSON.stringify({results: [{
-    username: 'Jono', text: 'Do my bidding!', roomname: 'lobby'
-  }]}));
+  
+
 };
 
 //'{hello: "world"}'
+
+  // response.end(JSON.stringify({results: [{
+  //   username: 'Jono', text: 'Do my bidding!', roomname: 'lobby'
+  // }]}));
 
 // These headers will allow Cross-Origin Resource Sharing (CORS).
 // This code allows this server to talk to websites that
